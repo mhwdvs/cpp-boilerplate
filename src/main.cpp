@@ -1,14 +1,18 @@
 #include <iostream>
-#include "gtest/gtest.h"
+#include <catch2/catch.hpp>
 
-int main(int argc, char **argv) {
-    for(size_t i = 0; i < size_t (argc); ++i){
-        if(strcmp(argv[i], "--test") == 0){ // only run tests if requested
-            ::testing::InitGoogleTest(&argc, argv);
-            auto res = RUN_ALL_TESTS();
-            std::cout << "Unit tests returned: " << res << '\n';
-        }
-    }
+int main() {
     std::cout << "Hello World!\n";
 	return 0;
+}
+
+unsigned int Factorial( unsigned int number ) {
+    return number <= 1 ? number : Factorial(number-1)*number;
+}
+
+TEST_CASE( "Factorials are computed", "[factorial]" ) {
+    REQUIRE( Factorial(1) == 1 );
+    REQUIRE( Factorial(2) == 2 );
+    REQUIRE( Factorial(3) == 6 );
+    REQUIRE( Factorial(10) == 3628800 );
 }

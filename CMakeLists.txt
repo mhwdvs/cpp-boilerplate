@@ -36,36 +36,24 @@ endif()
 
 # --- DEPENDENCIES ---
 
-# Google Test
-# Download and unpack googletest at configure time
-configure_file(CMakeLists.txt.in googletest-download/CMakeLists.txt)
-execute_process(COMMAND ${CMAKE_COMMAND} -G "${CMAKE_GENERATOR}" .
-  RESULT_VARIABLE result
-  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/googletest-download )
-if(result)
-  message(FATAL_ERROR "CMake step for googletest failed: ${result}")
+Include(FetchContent)
+FetchContent_Declare(
+        Catch2
+        GIT_REPOSITORY https://github.com/catchorg/Catch2.git
+        GIT_TAG        v2.13.1)
+FetchContent_MakeAvailable(Catch2)
+target_link_libraries(${PROJECT_NAME} Catch2::Catch2)
+
+# add Catch cmake module
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_BINARY_DIR}/_deps/catch2-src/contrib)
+
+include(CTest)
+include(Catch)
+catch_discover_tests(${PROJECT_NAME})
+
+if(${CMAKE_BUILD_TYPE} STREQUAL Debug)
+    #option(CATCH_BUILD_TESTING "" OFF)
+    #option(BUILD_TESTING "" OFF)
 endif()
-execute_process(COMMAND ${CMAKE_COMMAND} --build .
-  RESULT_VARIABLE result
-  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/googletest-download )
-if(result)
-  message(FATAL_ERROR "Build step for googletest failed: ${result}")
-endif()
-
-# Prevent overriding the parent project's compiler/linker
-# settings on Windows
-set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
-
-# Add googletest directly to our build. This defines
-# the gtest and gtest_main targets.
-add_subdirectory(${CMAKE_CURRENT_BINARY_DIR}/googletest-src
-                 ${CMAKE_CURRENT_BINARY_DIR}/googletest-build
-                 EXCLUDE_FROM_ALL)
-
-# Include and link against dependencies.
-target_link_libraries(${PROJECT_NAME} PRIVATE gtest gmock gtest_main)
-
-enable_testing()
-add_test(NAME example_test COMMAND ${PROJECT_NAME})
 
 add_subdirectory(src)
